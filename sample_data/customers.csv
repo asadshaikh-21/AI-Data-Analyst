@@ -1,0 +1,61 @@
+customer_id,customer_name,segment,country,signup_date
+C001,Liam Ali,Consumer,UK,2024-08-14
+C002,Ethan Singh,SMB,USA,2024-09-15
+C003,Mia Williams,Consumer,India,2023-06-06
+C004,Liam Brown,Consumer,UK,2024-09-17
+C005,Noah Patel,Consumer,India,2023-03-23
+C006,Zara Sharma,Consumer,UK,2023-12-30
+C007,Sofia Ali,Consumer,UK,2023-11-25
+C008,Sofia Ali 2,SMB,India,2023-08-10
+C009,Zara Smith,Enterprise,India,2023-01-16
+C010,Priya Singh,SMB,UK,2024-06-24
+C011,Zara Johnson,SMB,India,2023-08-23
+C012,Noah Sharma,SMB,Germany,2024-04-08
+C013,Lucas Brown,Consumer,UK,2023-10-15
+C014,Olivia Williams,SMB,UK,2023-09-19
+C015,Zara Singh,Enterprise,UK,2024-09-12
+C016,Mia Khan,SMB,India,2023-03-08
+C017,Liam Garcia,SMB,Germany,2024-05-30
+C018,Priya Patel,Consumer,UK,2024-06-06
+C019,Priya Williams,Consumer,USA,2023-09-23
+C020,Emma Brown,Consumer,India,2023-07-03
+C021,Liam Ali 2,Consumer,UK,2023-01-04
+C022,Sofia Johnson,SMB,UK,2024-10-17
+C023,Aarav Sharma,Consumer,Germany,2024-10-25
+C024,Mia Williams 2,Enterprise,UK,2023-06-18
+C025,Sofia Ali 3,Enterprise,UK,2023-01-23
+C026,Lucas Smith,Enterprise,India,2023-03-27
+C027,Olivia Singh,Consumer,UK,2023-02-17
+C028,Mia Patel,SMB,UK,2024-08-04
+C029,Zara Smith 2,Enterprise,UK,2024-09-16
+C030,Sofia Brown,SMB,India,2023-04-18
+C031,Omar Ali,Enterprise,USA,2024-06-06
+C032,Olivia Sharma,Consumer,Germany,2023-05-06
+C033,Olivia Johnson,SMB,India,2023-09-15
+C034,Priya Johnson,SMB,UK,2024-02-24
+C035,Aarav Singh,SMB,India,2024-05-18
+C036,Lucas Smith 2,Consumer,USA,2024-09-04
+C037,Mia Smith,SMB,India,2023-02-01
+C038,Sofia Singh,Enterprise,USA,2023-05-18
+C039,Emma Khan,Enterprise,USA,2023-07-16
+C040,Zara Brown,Consumer,USA,2023-08-06
+C041,Omar Singh,Consumer,India,2024-11-29
+C042,Liam Williams,Consumer,Germany,2024-06-28
+C043,Ethan Ali,SMB,India,2023-08-13
+C044,Liam Johnson,Consumer,India,2024-11-11
+C045,Lucas Williams,Consumer,UK,2023-12-16
+C046,Mia Williams 3,Consumer,UK,2023-12-17
+C047,Priya Johnson 2,SMB,USA,2023-10-31
+C048,Priya Khan,SMB,USA,2023-04-11
+C049,Noah Brown,Enterprise,UK,2024-10-16
+C050,Ethan Smith,Consumer,Germany,2023-01-10
+C051,Lucas Smith 3,SMB,India,2023-05-02
+C052,Lucas Patel,SMB,UK,2023-06-10
+C053,Lucas Ali,SMB,India,2023-07-15
+C054,Lucas Brown 2,Consumer,Germany,2023-04-03
+C055,Mia Ali,Enterprise,India,2023-01-13
+C056,Emma Ali,Consumer,India,2024-04-19
+C057,Zara Singh 2,Consumer,UK,2024-11-09
+C058,Zara Garcia,Consumer,Germany,2023-03-27
+C059,Aarav Smith,SMB,Germany,2023-07-27
+C060,Noah Smith,Consumer,USA,2023-12-21

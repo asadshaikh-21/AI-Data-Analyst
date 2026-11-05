@@ -1,0 +1,16 @@
+flowchart LR
+    UI["Browser UI<br/>(chat, Chart.js, tables)"] -->|REST/JSON| API["FastAPI<br/>app/main.py"]
+    API --> SM["SessionManager<br/>(per-session state)"]
+    API --> AG["Agent<br/>app/agent.py"]
+    SM --> DS["Data store<br/>validate · profile · quality"]
+    DS --> DB[("DuckDB in-memory<br/>one table per CSV")]
+    AG -->|1. plan JSON| LLM["LLM client<br/>Anthropic / OpenAI<br/>retry + cache"]
+    AG -->|fallback| OFF["Offline heuristic planner"]
+    AG -->|2. validate| GUARD["SQL guard<br/>read-only SELECT only"]
+    GUARD -->|3. execute| DB
+    DB -->|result| AG
+    AG -->|repair loop on error<br/>(max 2)| LLM
+    AG --> CH["Chart builder"]
+    AG --> AN["Anomaly detector<br/>IQR + MAD, group-aware"]
+    AN --> DB
+    AG -->|4. explain real rows| LLM

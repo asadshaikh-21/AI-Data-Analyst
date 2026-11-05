@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Data Analyst</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#1b1f27;--mute:#667085;--line:#e4e7ec;--acc:#2563eb;--acc2:#eff4ff;--bad:#b42318;--ok:#067647}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1218;--panel:#171b23;--ink:#e8eaee;--mute:#98a2b3;--line:#2a303b;--acc:#6ea0ff;--acc2:#1d2a44;--bad:#f97066;--ok:#47cd89}}
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex}
+aside{width:310px;background:var(--panel);border-right:1px solid var(--line);padding:16px;overflow:auto;flex-shrink:0}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+h1{font-size:17px;margin:0 0 2px}h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:18px 0 8px}
+.sub{color:var(--mute);font-size:12px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:7px 11px}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}button:hover{filter:brightness(.96)}button:disabled{opacity:.5;cursor:default}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--mute);cursor:pointer}
+.drop.over{border-color:var(--acc);background:var(--acc2)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.ds{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+.ds b{display:block}.badge{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--acc2);color:var(--acc)}
+.cols{font-size:12px;color:var(--mute);margin-top:6px;max-height:0;overflow:hidden;transition:max-height .2s}.ds.open .cols{max-height:400px}
+.msgs{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:900px;width:100%;margin:0 auto}
+.u{align-self:flex-end;background:var(--acc);color:#fff;padding:9px 14px;border-radius:14px 14px 3px 14px;width:auto;max-width:70%;margin:0 0 0 auto}
+.a{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.a p{margin:0 0 8px}.a ul{margin:6px 0 8px 18px;padding:0}
+canvas{max-height:320px;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:12.5px}th,td{text-align:left;padding:5px 9px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mute);font-weight:600}
+.tw{overflow:auto;max-height:260px;border:1px solid var(--line);border-radius:8px;margin-top:8px}
+details{margin-top:8px;border-top:1px solid var(--line);padding-top:6px}summary{cursor:pointer;color:var(--mute);font-size:12.5px}
+pre{background:var(--bg);padding:10px;border-radius:8px;overflow:auto;font-size:12.5px;margin:6px 0}
+.warn{color:var(--bad);font-size:12.5px;margin-top:6px}.meta{color:var(--mute);font-size:11.5px;margin-top:8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 20px 8px;max-width:940px;margin:0 auto;width:100%}
+.chips button{font-size:12.5px;border-radius:99px;padding:4px 11px;background:var(--acc2);color:var(--acc);border-color:transparent}
+form{display:flex;gap:8px;padding:12px 20px 18px;max-width:940px;margin:0 auto;width:100%}
+input[type=text]{flex:1;font:inherit;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
+.dots span{display:inline-block;width:6px;height:6px;margin-right:3px;background:var(--mute);border-radius:50%;animation:b 1s infinite}.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-4px);opacity:.4}}
+@media(max-width:760px){body{flex-direction:column;height:auto}aside{width:100%}.msgs{min-height:60vh}}
+</style>
+</head>
+<body>
+<aside>
+  <h1>AI Data Analyst</h1>
+  <div class="sub" id="mode">connecting…</div>
+  <h2>Data</h2>
+  <div class="drop" id="drop">Drop CSV files here or click to upload<input id="file" type="file" accept=".csv" multiple hidden></div>
+  <div class="row"><button id="sample">Load sample data</button><button id="scan">Scan anomalies</button><button id="export">Export report</button></div>
+  <h2>Datasets</h2>
+  <div id="datasets" class="sub">No data yet.</div>
+</aside>
+<main>
+  <div class="msgs" id="msgs">
+    <div class="msg a"><p><b>Upload one or more CSV files</b> (or load the sample data) and ask questions in plain English. I'll write the SQL, run it, chart it, flag anomalies and explain my reasoning.</p></div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <form id="form"><input type="text" id="q" placeholder="Ask about your data…" autocomplete="off" maxlength="2000"><button class="pri" id="send">Ask</button></form>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const EXAMPLES=["Which region generated the highest revenue?","Show monthly sales trends.","Which products are underperforming?","What are the top five customers?","Generate SQL for this analysis.","Detect anomalies in the dataset."];
+let sid=null, charts=[];
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function md(t){
+  const lines=esc(t).split("\n");let out="",ul=false;
+  for(const l of lines){
+    const li=l.match(/^\s*[-*]\s+(.*)/);
+    const f=x=>x.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`(.+?)`/g,"<code>$1</code>").replace(/_(.+?)_/g,"<i>$1</i>");
+    if(li){if(!ul){out+="<ul>";ul=true}out+="<li>"+f(li[1])+"</li>"}
+    else{if(ul){out+="</ul>";ul=false}if(l.trim())out+="<p>"+f(l)+"</p>"}
+  }
+  return out+(ul?"</ul>":"");
+}
+async function api(path,opts){
+  const r=await fetch(path,opts);
+  if(!r.ok){let d="Request failed";try{d=(await r.json()).detail||d}catch{}throw new Error(d)}
+  return r;
+}
+async function init(){
+  sid=(await (await api("/api/sessions",{method:"POST"})).json()).session_id;
+  const h=await (await api("/health")).json();
+  $("#mode").textContent=h.llm==="offline"?"Offline heuristic mode (no LLM key set)":"LLM: "+h.llm;
+  $("#chips").innerHTML=EXAMPLES.map(e=>`<button type="button">${esc(e)}</button>`).join("");
+  $("#chips").onclick=e=>{if(e.target.tagName==="BUTTON"){$("#q").value=e.target.textContent;$("#form").requestSubmit()}};
+}
+function renderDatasets(list){
+  $("#datasets").innerHTML=list.length?list.map(d=>`<div class="ds" onclick="this.classList.toggle('open')">
+    <b>${esc(d.name)} <span class="badge">${d.rows} rows</span> <span class="badge" style="color:${d.quality.score>=85?'var(--ok)':'var(--bad)'}">quality ${d.quality.score}</span></b>
+    <div class="cols">${d.columns.map(c=>`${esc(c.name)} <i>${c.kind}</i>`).join(" · ")}
+    ${d.quality.issues.length?`<div style="margin-top:6px;color:var(--bad)">${d.quality.issues.map(esc).join("<br>")}</div>`:""}</div></div>`).join(""):"No data yet.";
+}
+async function upload(files){
+  const fd=new FormData();[...files].forEach(f=>fd.append("files",f));
+  try{
+    const res=await (await api(`/api/sessions/${sid}/upload`,{method:"POST",body:fd})).json();
+    renderDatasets(res.datasets);
+    const bad=res.results.filter(r=>!r.ok);
+    if(bad.length)addBot(`<div class="warn">${bad.map(b=>esc(b.filename)+": "+esc(b.error)).join("<br>")}</div>`);
+  }catch(e){addBot(`<div class="warn">${esc(e.message)}</div>`)}
+}
+function addUser(t){const d=document.createElement("div");d.className="msg u";d.textContent=t;$("#msgs").append(d);scroll()}
+function addBot(html){const d=document.createElement("div");d.className="msg a";d.innerHTML=html;$("#msgs").append(d);scroll();return d}
+function scroll(){const m=$("#msgs");m.scrollTop=m.scrollHeight}
+function table(t){
+  if(!t)return"";
+  return `<div class="tw"><table><thead><tr>${t.columns.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${
+    t.rows.slice(0,100).map(r=>`<tr>${r.map(v=>`<td>${esc(typeof v==="number"?v.toLocaleString():v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`+
+    (t.total_rows>100?`<div class="meta">Showing 100 of ${t.total_rows} rows</div>`:"");
+}
+const PAL=["#2563eb","#f59e0b","#10b981","#ef4444","#8b5cf6","#06b6d4","#ec4899","#84cc16"];
+function drawChart(canvas,c){
+  const type=c.type, cfg={type,options:{responsive:true,plugins:{title:{display:true,text:c.title},legend:{display:type==="pie"||c.series.length>1}}}};
+  if(type==="scatter")cfg.data={datasets:c.series.map((s,i)=>({label:s.name,data:s.data,backgroundColor:PAL[i]}))};
+  else if(type==="pie")cfg.data={labels:c.labels,datasets:[{data:c.series[0].data,backgroundColor:c.labels.map((_,i)=>PAL[i%PAL.length])}]};
+  else{cfg.data={labels:c.labels,datasets:c.series.map((s,i)=>({label:s.name,data:s.data,backgroundColor:PAL[i],borderColor:PAL[i],tension:.25,pointRadius:type==="line"?2:0}))};
+    cfg.options.scales={x:{title:{display:true,text:c.x_label}}};}
+  charts.push(new Chart(canvas,cfg));
+}
+function anomalies(list){
+  if(!list||!list.length)return"";
+  return `<details open><summary>Flagged values (${list.length})</summary><div class="tw"><table><thead><tr><th>Table.column</th><th>Row</th><th>Value</th><th>Why flagged</th></tr></thead><tbody>${
+    list.map(a=>`<tr><td>${esc(a.table)}.${esc(a.column)}</td><td>${a.row}</td><td>${a.value.toLocaleString()}</td><td style="white-space:normal">${esc(a.reason)}</td></tr>`).join("")}</tbody></table></div></details>`;
+}
+function renderAnswer(r){
+  const div=addBot(`${md(r.answer||"")}<canvas hidden></canvas>${table(r.table)}${anomalies(r.anomalies)}
+    ${r.reasoning?`<details><summary>How I got this</summary>${md(r.reasoning)}</details>`:""}
+    ${r.sql?`<details><summary>SQL</summary><pre>${esc(r.sql)}</pre></details>`:""}
+    ${r.pandas_code?`<details><summary>Pandas</summary><pre>${esc(r.pandas_code)}</pre></details>`:""}
+    ${(r.warnings||[]).map(w=>`<div class="warn">${esc(w)}</div>`).join("")}
+    <div class="meta">${esc(r.mode)} · ${r.latency_ms} ms · ${r.steps.map(s=>s.step+" "+s.ms+"ms").join(" → ")}</div>`);
+  if(r.chart){const cv=div.querySelector("canvas");cv.hidden=false;drawChart(cv,r.chart)}
+}
+$("#form").onsubmit=async e=>{
+  e.preventDefault();const q=$("#q").value.trim();if(!q)return;
+  $("#q").value="";addUser(q);
+  const wait=addBot('<span class="dots"><span></span><span></span><span></span></span>');
+  $("#send").disabled=true;
+  try{
+    const r=await (await api(`/api/sessions/${sid}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q})})).json();
+    wait.remove();renderAnswer(r);
+  }catch(err){wait.innerHTML=`<div class="warn">${esc(err.message)}</div>`}
+  $("#send").disabled=false;
+};
+$("#drop").onclick=()=>$("#file").click();
+$("#file").onchange=e=>upload(e.target.files);
+$("#drop").ondragover=e=>{e.preventDefault();$("#drop").classList.add("over")};
+$("#drop").ondragleave=()=>$("#drop").classList.remove("over");
+$("#drop").ondrop=e=>{e.preventDefault();$("#drop").classList.remove("over");upload(e.dataTransfer.files)};
+$("#sample").onclick=async()=>renderDatasets((await (await api(`/api/sessions/${sid}/load-samples`,{method:"POST"})).json()).datasets);
+$("#scan").onclick=()=>{$("#q").value="Detect anomalies in the dataset.";$("#form").requestSubmit()};
+$("#export").onclick=()=>{location.href=`/api/sessions/${sid}/report`};
+init().catch(e=>{$("#mode").textContent="Cannot reach server: "+e.message});
+</script>
+</body>
+</html>
