@@ -1,26 +1,26 @@
 
 flowchart LR
-    UI["Browser UI<br/>Chat, Chart.js, Tables"] -->|REST JSON| API["FastAPI<br/>app/main.py"]
+    UI["Browser UI - Chat, Chart.js, Tables"] -->|REST JSON| API["FastAPI - app/main.py"]
 
-    API --> SM["Session Manager<br/>Per-session state"]
-    API --> AG["Agent<br/>app/agent.py"]
+    API --> SM["Session Manager - Per-session state"]
+    API --> AG["Agent - app/agent.py"]
 
-    SM --> DS["Data Store<br/>Validate, Profile, Quality"]
-    DS --> DB[("DuckDB In-Memory<br/>One table per CSV")]
+    SM --> DS["Data Store - Validate, Profile, Quality"]
+    DS --> DB[("DuckDB In-Memory - One table per CSV")]
 
-    AG -->|1. Plan JSON| LLM["LLM Client<br/>Anthropic / OpenAI<br/>Retry and Cache"]
+    AG -->|Plan JSON| LLM["LLM Client - Anthropic or OpenAI - Retry and Cache"]
     AG -->|Fallback| OFF["Offline Heuristic Planner"]
 
-    AG -->|2. Validate| GUARD["SQL Guard<br/>Read-only SELECT only"]
-    GUARD -->|3. Execute| DB
+    AG -->|Validate SQL| GUARD["SQL Guard - Read-only SELECT"]
+    GUARD -->|Execute Query| DB
 
-    DB -->|Result| AG
+    DB -->|Query Result| AG
 
-    AG -->|Repair loop on error, max 2 retries| LLM
+    AG -->|Repair on error - Max 2 retries| LLM
 
     AG --> CH["Chart Builder"]
-    AG --> AN["Anomaly Detector<br/>IQR and MAD, Group-aware"]
+    AG --> AN["Anomaly Detector - IQR and MAD - Group-aware"]
 
     AN --> DB
 
-    AG -->|4. Explain real rows| LLM
+    AG -->|Explain Real Rows| LLM
